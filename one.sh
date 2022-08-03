@@ -98,6 +98,7 @@ pipeline {
 
 pipeline {
     agent any
+<<<<<<< HEAD
     environment {
         registryCredential = 'ecr:us-east-2:awscreds'
         appRegistry = "951401132355.dkr.ecr.us-east-2.amazonaws.com/vprofileappimg"
@@ -138,12 +139,55 @@ pipeline {
                 withSonarQubeEnv('sonar') {
                  sh '''${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=vprofile \
                    -Dsonar.projectName=vprofile-repo \
+=======
+
+    stages{
+        stage('Fetch code') {
+          steps{
+              git branch: 'vp-rem', url:'https://github.com/devopshydclub/vprofile-repo.git'
+          }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'mvn clean install -DskipTests'
+            }
+            post {
+                success {
+                    echo "Now Archiving."
+                    archiveArtifacts artifacts: '**/*.war'
+                }
+            }
+        }
+        stage('Test'){
+            steps {
+                sh 'mvn test'
+            }
+
+        }
+
+        stage('Checkstyle Analysis'){
+            steps {
+                sh 'mvn checkstyle:checkstyle'
+            }
+        }
+
+        stage('Sonar Analysis') {
+            environment {
+                scannerHome = tool 'sonar4.7'
+            }
+            steps {
+               withSonarQubeEnv('sonar') {
+                   sh '''${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=vprofile \
+                   -Dsonar.projectName=vprofile \
+>>>>>>> task-1
                    -Dsonar.projectVersion=1.0 \
                    -Dsonar.sources=src/ \
                    -Dsonar.java.binaries=target/test-classes/com/visualpathit/account/controllerTest/ \
                    -Dsonar.junit.reportsPath=target/surefire-reports/ \
                    -Dsonar.jacoco.reportsPath=target/jacoco.exec \
                    -Dsonar.java.checkstyle.reportPaths=target/checkstyle-result.xml'''
+<<<<<<< HEAD
                 }
             }
         }
@@ -189,6 +233,13 @@ pipeline {
      }
 
   }
+=======
+              }
+            }
+        }
+
+    }
+>>>>>>> task-1
 }
 
 
